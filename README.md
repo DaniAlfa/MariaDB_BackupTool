@@ -8,9 +8,9 @@ or doesn't exist, the script will ask the user to create a new one.
 ### NOTE: THE SCRIPT MUST BE EXECUTED AS ROOT
 
 ## Options:
-    ## (1) Create a physical backup
-    ## (2) Create an incremental physical backup
-    ## (3) Restore backup
-    ## (4) Schedule physical backup
-    ## (5) Schedule incremental physical backup
-    ## (6) Remove backup jobs
+    (1) Create a physical backup
+    (2) Create an incremental physical backup
+    (3) Restore backup
+    (4) Schedule physical backup
+    (5) Schedule incremental physical backup
+    (6) Remove backup jobs
