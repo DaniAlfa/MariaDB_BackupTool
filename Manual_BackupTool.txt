@@ -1,0 +1,87 @@
+************************************************************************BackupTool*******************************************************
+El script BackupTool es una utilidad para realizar backups fisicos, restaurarlos y planificarlos sobre un servidor mariadb.
+Permite realizar backups tanto completos como incrementales, de todo el servidor o de bases de datos en particular, utilizando compresion.
+
+El script utiliza un directorio seleccionado por el usuario para guardar todos los backups, de forma que pueda manejarlos mejor. 
+La ruta a este directorio se guarda en un archivo de configuracion, /etc/BackupTool.cnf. Si no existe o no encuentra el directorio,
+preguntara al usuario para que establezca uno nuevo.
+
+NOTA: PARA LOS BACKUPS QUE SE QUIERAN CAMBIAR A OTRO SERVIDOR CON DIFERENTE INFRAESTRUCTURA, NO ESTA ASEGURADA SU FUNCIONALIDAD CON BACKUPS FISICOS, DEBERIAN SER BACKUPS LOGICOS PARA 
+MAYOR SEGURIDAD
+NOTA: EL SCRIPT DEBE EJECUTARSE COMO ROOT
+
+Tipos de operaciones:
+    (1) Crear backup fisico
+    (2) Crear backup fisico incremental
+    (3) Restaurar backup
+    (4) Planificar Backup fisico
+    (5) Planificar Backup fisico incremental
+    (6) Borrar tareas de backup
+    
+    
+(1) Creacion de backups fisicos
+En esta opcion se permite la creacion de un nuevo backup fisico sobre el servidor completo o bases de datos.
+El servidor debe estar arrancado previamente.
+
+Al seleccionarlo se pedira al usuario la ruta al directorio donde desea guardar el backup. Se recomienda que sea en la carpeta de backups generales seleccionada al
+comienzo del script. 
+Este directorio debera ser vacio o no existir.
+Se sugerira una ruta por defecto al directorio general, con un nombre de carpeta de Back_fecha_hora.
+
+Una vez seleccionada se ofrecera la posibilidad de hacer un backup de todo el servidor o de bases de datos en particular.
+Seleccionando la opcion de bases de datos, se mostrara una lista con las que contenga el servidor y el usuario debera introducir los nombres de las seleccionadas
+tal como aparecen separadas por espacios. Por ejemplo: TESTING1 TESTING2
+
+Una vez confirmada la opcion se generara el backup comprimido en la carpeta destino.
+
+
+(2) Creacion de backups fisicos incrementales
+Los backups incrementales permiten guardar solo los cambios con respecto a uno completo/base u otro incremental, de forma que se ahorre espacio.
+El servidor debe estar arrancado previamente.
+
+Al seleccionarlo se mostrara al usuario una lista con todos los backups de la carpeta general, asi como informacion de interes de cada uno:
+    Back_fecha_hora --> Tipo: base o incremental y directorio base del incremental, DB: full o bases de datos seleccionadas, Fecha: fecha y hora del backup
+Se pedira al usuario elegir uno de los directorios mostrados para realizar el incremental, sugiriendo por defecto la ruta al mas reciente.
+
+Una vez seleccionado se pedira al usuario el directorio destino del backup, de la misma forma que en la opcion 1.
+
+Al introducirlo se generara un backup incremental comprimido en la carpeta destino, sobre el directorio base elegido y utilizando las mismas bases de datos seleccionadas
+para el base.
+
+(3) Restauracion de backups
+En esta opcion se permite elegir una carpeta de backup para restaurarlo en el servidor. El servidor puede estar arrancado o parado previamente.
+En caso de estar paradado se pedira al usuario en primer lugar la ruta al directorio de datos del servidor, que por defecto es /var/lib/mysql.
+
+Esta opcion es aplicable tanto a backups base como a incrementales.
+Una vez seleccionada se mostrara una lista con los backups de la carpeta general, como en la opcion 2, para que el usuario elija el que desea recuperar.
+
+-En el caso de backups base se restaurara solamente. En cambio en caso de seleccionar un backup incremental, este y los anteriores se sincronizaran con su base, 
+se eliminaran y el base se renombrara con la fecha y hora el incremental seleccionado.
+
+Se pedira una confirmacion ya que el servidor se tendra que desconectar momentaneamente. Una vez confirmada se desconectara el servidor, se restaurara el backup y luego 
+volvera a arrancar.
+
+--En caso de fallo en la restauracion, el servidor no podra arrancar. En este caso se debera restarurar un backup anterior.
+
+(4) y (5) Planificar un backup fisico
+En estas opciones se permite planificar en crontab la realizacion de backups fisicos sobre el servidor.
+
+En primer lugar se pediran las bases de datos sobre las que se hara el backup, como en la opcion 1.
+
+Luego se pediran:
+    -Los dias de la semana en los que hacer el backup
+    -Los meses
+    -Las horas
+    -Los minutos
+Se podra introducir como un solo digito para concretar, como un intervalo x-y de dos digitos para seleccionar todo el intervalo o como * para selecionar todos los valores.
+En el propio dialogo se dara instrucciones sobre los limites en los digitos a introducir
+
+Una vez introducida la planificacion se crearan uno o dos scripts en la carpeta de backups generales y se planificara su ejecucion en crontab.
+
+NOTA: LOS BACKUPS INCREMENTALES SE REALIZARAN SIEMPRE SOBRE EL ULTIMO BACKUP EN LA CARPETA GENERAL. NO ESTAN PENSADOS PARA HACERSE SOBRE VARIAS LINEAS DE BACKUP, ES DECIR, SOBRE
+BACKUPS QUE SE REALIZEN SOBRE DISTINTAS BASES DE DATOS.
+
+(6) Borrar planificaciones de backup
+Ademas de planificar los backups, se ofrece la opcion de borrar los creados por BackupTool.
+
+En esta opcion solamente se pedira confirmacion del borrado y en caso afirmativo se borraran de crontab las planificaciones creadas por el script.
